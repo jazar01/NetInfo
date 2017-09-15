@@ -28,6 +28,10 @@ bld/
 /*.config
 
 *.csv
+signtool.exe
+*.pvk
+*.spc
+
 
 # Visual Studio 2015 cache/options directory
 .vs/
