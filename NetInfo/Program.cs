@@ -10,21 +10,36 @@ namespace NetInfo
     {
         static void Main(string[] args)
         {
+            string Name;
+            bool Interactive = false;
             if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
             {
-                Console.WriteLine("  Usage:  netinfo name");
-                return;
+                Console.Write("Enter a name: ");
+                Name = Console.ReadLine();
+                Interactive = true;
             }
+            else
+                 Name = args[0];
 
-            string Name = args[0];
             string LogFileName = "NetInfo.csv";
             bool writeFileHeader = true;
             if (File.Exists(LogFileName))
                 writeFileHeader = false;
 
-            FileStream logfs = new FileStream(LogFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-            StreamWriter logfile = new StreamWriter(logfs);
-
+            FileStream logfs;
+            StreamWriter logfile;
+            try
+            {
+                logfs = new FileStream(LogFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                logfile = new StreamWriter(logfs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("   Error opening "+ LogFileName );
+                Console.WriteLine("   " + e.Message);
+                return;
+            }
+                
             IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             StringBuilder sb = new StringBuilder();
@@ -35,7 +50,7 @@ namespace NetInfo
 
             if (nics == null || nics.Length < 1)
             {
-                logfile.Write(recordHeader + "  No network interfaces found.\n");
+                Console.WriteLine(recordHeader + "  No network interfaces found.");
                 logfile.Close();
                 return;
             }
@@ -59,7 +74,15 @@ namespace NetInfo
 
                 logfile.Write("\n");
             }
+
             logfile.Close();
+            Console.WriteLine("Completed: " + nics.Length + " NICs found and recorded for " + Name);
+            if (Interactive)
+                {
+                Console.Write("Press enter");
+                Console.ReadLine();
+                }
+
         }
     }
 }
